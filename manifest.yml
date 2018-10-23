@@ -6,4 +6,4 @@ applications:
   routes:
   - route: ps-dj-pal-tracker.apps.pikes.pal.pivotal.io
   env:
-    WELCOME_MESSAGE: Hello from review environment
+    WELCOME_MESSAGE: Hello from the review environment
