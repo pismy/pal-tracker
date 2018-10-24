@@ -18,11 +18,6 @@ public class PalTrackerApplication {
     }
 
     @Bean
-    public TimeEntryRepository timeEntryRepo(DataSource dataSource) {
-        return new JdbcTimeEntryRepository(dataSource);
-    }
-
-    @Bean
     public ObjectMapper objectMapper() {
         return Jackson2ObjectMapperBuilder
                 .json()

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,13 +36,13 @@ public class TimeEntryControllerTest {
         TimeEntry expectedResult = new TimeEntry(1L, 123L, 456L, LocalDate.parse("2017-01-08"), 8);
         doReturn(expectedResult)
             .when(timeEntryRepository)
-            .create(any(TimeEntry.class));
+            .save(any(TimeEntry.class));
 
 
         ResponseEntity response = controller.create(timeEntryToCreate);
 
 
-        verify(timeEntryRepository).create(timeEntryToCreate);
+        verify(timeEntryRepository).save(timeEntryToCreate);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isEqualTo(expectedResult);
     }
@@ -49,22 +50,22 @@ public class TimeEntryControllerTest {
     @Test
     public void testRead() throws Exception {
         TimeEntry expected = new TimeEntry(1L, 123L, 456L, LocalDate.parse("2017-01-08"), 8);
-        doReturn(expected)
+        doReturn(Optional.of(expected))
             .when(timeEntryRepository)
-            .find(1L);
+            .findById(1L);
 
         ResponseEntity<TimeEntry> response = controller.read(1L);
 
-        verify(timeEntryRepository).find(1L);
+        verify(timeEntryRepository).findById(1L);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(expected);
     }
 
     @Test
     public void testRead_NotFound() throws Exception {
-        doReturn(null)
+        doReturn(Optional.empty())
             .when(timeEntryRepository)
-            .find(1L);
+            .findById(1L);
 
         ResponseEntity<TimeEntry> response = controller.read(1L);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
@@ -76,11 +77,11 @@ public class TimeEntryControllerTest {
             new TimeEntry(1L, 123L, 456L, LocalDate.parse("2017-01-08"), 8),
             new TimeEntry(2L, 789L, 321L, LocalDate.parse("2017-01-07"), 4)
         );
-        doReturn(expected).when(timeEntryRepository).list();
+        doReturn(expected).when(timeEntryRepository).findAll();
 
         ResponseEntity<List<TimeEntry>> response = controller.list();
 
-        verify(timeEntryRepository).list();
+        verify(timeEntryRepository).findAll();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(expected);
     }
@@ -88,23 +89,22 @@ public class TimeEntryControllerTest {
     @Test
     public void testUpdate() throws Exception {
         TimeEntry expected = new TimeEntry(1L, 987L, 654L, LocalDate.parse("2017-01-07"), 4);
+        doReturn(Optional.of(expected))
+                .when(timeEntryRepository)
+                .findById(eq(1L));
         doReturn(expected)
             .when(timeEntryRepository)
-            .update(eq(1L), any(TimeEntry.class));
+            .save(any(TimeEntry.class));
 
         ResponseEntity response = controller.update(1L, expected);
 
-        verify(timeEntryRepository).update(1L, expected);
+        verify(timeEntryRepository).save(expected);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(expected);
     }
 
     @Test
     public void testUpdate_NotFound() throws Exception {
-        doReturn(null)
-            .when(timeEntryRepository)
-            .update(eq(1L), any(TimeEntry.class));
-
         ResponseEntity response = controller.update(1L, new TimeEntry());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
@@ -112,7 +112,7 @@ public class TimeEntryControllerTest {
     @Test
     public void testDelete() throws Exception {
         ResponseEntity<TimeEntry> response = controller.delete(1L);
-        verify(timeEntryRepository).delete(1L);
+        verify(timeEntryRepository).deleteById(1L);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 }
